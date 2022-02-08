@@ -1,0 +1,61 @@
+import pandas as pd
+import numpy as np 
+import string
+import nltk
+
+data=pd.read_csv("Book21.csv",names=["Message_type","Message"])
+nltk.download('swords')
+nltk.download('punkt')
+swords = nltk.corpus.swords.words('english')
+punctuation = string.punctuation
+
+def pre_processing(message):
+   remove_punct = "".join([word.lower() for word in message if word not 
+                  in punctuation])
+   tokenize = nltk.tokenize.word_tokenize(remove_punct)
+   remove_swords = [word for word in tokenize if word not in
+                       swords]
+   return remove_swords
+
+data['processed'] = data['Message'].apply(lambda x: pre_processing(x))	
+
+def categorize_words():
+   spam_words = []
+   ham_words = []
+   for message in data['processed'][data['label'] == 'spam']:
+      for word in message:
+        spam_words.append(word)
+   for message in data['processed'][data['label'] == 'ham']:
+      for word in message:
+         ham_words.append(word)
+   return spam_words, ham_words
+
+spam_words, ham_words = categorize_words()
+
+def predict(message):
+   spam_counter = 0
+   ham_counter = 0
+   for word in message:
+      spam_counter += spam_words.count(word)
+      ham_counter += ham_words.count(word)
+   print(ham_counter, spam_counter)
+   if ham_counter > spam_counter:
+      accuracy = round((ham_counter / (ham_counter + spam_counter)*100))
+      print('message is not spam')
+   else:
+      accuracy = round((spam_counter / (ham_counter + spam_counter)* 100))
+      if(accuracy>70):
+            print("Message is spam")
+
+user_input = ("WINNER!! You have won 1,000,0000 dollars CALL now 9876575834")
+processed_input = pre_process(user_input)
+predict(processed_input)
+
+
+
+
+
+
+
+
+

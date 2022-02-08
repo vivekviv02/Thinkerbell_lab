@@ -1,0 +1,31 @@
+import pandas as pd
+import numpy as np
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+
+sdet1=pd.read_csv("Book1.csv")
+sdet1.size
+sdet_data = sdet1[["Message_type","Message"]]
+sdet_y = sdet_data['Message_type']
+sdet_x = sdet_data['Message']
+
+from sklearn.feature_extraction.text import CountVectorizer
+
+corpus = sdet_x
+cv = CountVectorizer()
+X = cv.fit_transform(corpus)
+
+X_train, X_test, y_train, y_test = train_test_split(X, sdet_y, test_size=0.30, random_state=42)
+
+mod = MultinomialNB()
+
+mod.fit(X_train,y_train)
+
+print("Accuracy of Model",mod.score(X_test,y_test)*100,"%")
+
+mod.predict(X_test)
+
+comment = ["Please provide your details as you have won a lottery of $1,00,000"]
+vect = cv.transform(comment).toarray()
+
+mod.predict(vect)
